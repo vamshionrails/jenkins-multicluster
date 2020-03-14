@@ -1,0 +1,95 @@
+{
+  "admin": {
+    "access_log_path": "/tmp/envoy.log",
+    "address": {
+      "socket_address": {
+        "address": "127.0.0.1",
+        "port_value": 9901
+      }
+    }
+  },
+  "static_resources": {
+    "listeners": [
+      {
+        "address": {
+          "socket_address": {
+            "address": "127.0.0.1",
+            "port_value": 7777
+          }
+        },
+        "filter_chains": {
+          "filters": [
+            {
+              "name": "envoy.http_connection_manager",
+              "config": {
+                "stat_prefix": "ingress_http",
+                "http_filters": [
+                  {
+                    "name": "envoy.router",
+                    "config": {}
+                  }
+                ],
+                "route_config": {
+                  "virtual_hosts": [
+                    {
+                      "name": "blah",
+                      "domains": "*",
+                      "routes": [
+                        {
+                          "route": {
+                            "cluster": "jenkins002"
+                          },
+                          "match": {
+                            "prefix": "/"
+                          }
+                        },
+                        {
+                          "route": {
+                            "cluster": "jenkins003"
+                          },
+                          "match": {
+                            "prefix": "/"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "clusters": [
+      {
+        "name": "jenkins002",
+        "type": "STRICT_DNS",
+        "lb_policy": "ROUND_ROBIN",
+        "connect_timeout": "1s",
+        "hosts": [
+          {
+            "socket_address": {
+              "address": "127.0.0.1",
+              "port_value": 9090
+            }
+          }
+        ]
+      },
+      {
+        "name": "jenkins003",
+        "type": "STRICT_DNS",
+        "lb_policy": "ROUND_ROBIN",
+        "connect_timeout": "1s",
+        "hosts": [
+          {
+            "socket_address": {
+              "address": "127.0.0.1",
+              "port_value": 8090
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
